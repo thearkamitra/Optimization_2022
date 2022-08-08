@@ -1,36 +1,135 @@
 import argparse
+from turtle import pos
 import tqdm
 import numpy as np
 import matplotlib.pyplot as plt
-from functions import *
+import functions as func
 
 # the function that needs to be minimised
 
 
-def function(x):
+def f(x):
     return np.sum(np.square(x - 2), axis=1, keepdims=True)
 
 
 # hyperparameters
+def _parse_args():
+    """
+    The different arguments for the parser
+    """
+    parser = argparse.ArgumentParser(description="Obtain the parameters for the PSO")
+    parser.add_argument(
+        "-d",
+        "--num_feat",
+        type=int,
+        default=10,
+        help="Number of dimensions each particle has",
+    )
+    parser.add_argument(
+        "-n",
+        "--num_units",
+        type=int,
+        default=10,
+        help="Number of particles for the run",
+    )
+    parser.add_argument(
+        "--max_value",
+        type=float,
+        default=1,
+        help="Maximum value of the elements initially",
+    )
+    parser.add_argument(
+        "--min_value",
+        type=float,
+        default=0,
+        help="Minimum value of the elements initially",
+    )
+    parser.add_argument("--c1", type=float, default=2, help="Positional Dependence")
+    parser.add_argument("--c2", type=float, default=2, help="Global Dependence")
+    parser.add_argument("--modified", action="store_true", help="Use the modified PSO")
+    parser.add_argument(
+        "--iters",
+        type=int,
+        default=1000,
+        help="Number of iterations the algorithm will run",
+    )
+
+    parser.add_argument(
+        "--func",
+        type=str,
+        default="sphere",
+        choices=[
+            "ackley",
+            "beale",
+            "booth",
+            "bukin6",
+            "crossintray",
+            "easom",
+            "eggholder",
+            "goldstein",
+            "himmelblau",
+            "holdertable",
+            "levi",
+            "matyas",
+            "rastringin",
+            "rosenbrock",
+            "schaffer2",
+            "sphere",
+            "threehump",
+        ],
+    )
+    return parser.parse_args()
+
+
 def main():
     # initialisation
     args = _parse_args()
     num_units = args.num_units
     num_feat = args.num_feat
+    if args.func == "ackley":
+        function = func.ackley
+    elif args.func == "beale":
+        function = func.beale
+    elif args.func == "booth":
+        function = func.booth
+    elif args.func == "bukin6":
+        function = func.bukin6
+    elif args.func == "crossintray":
+        function = func.crossintray
+    elif args.func == "easom":
+        function = func.easom
+    elif args.func == "eggholder":
+        function = func.eggholder
+    elif args.func == "goldstein":
+        function = func.goldstein
+    elif args.func == "himmelblau":
+        function = func.himmelblau
+    elif args.func == "holdertable":
+        function = func.holdertable
+    elif args.func == "levi":
+        function = func.levi
+    elif args.func == "matyas":
+        function = func.matyas
+    elif args.func == "rastringin":
+        function = func.rastrigin
+    elif args.func == "rosenbrock":
+        function = func.rosenbrock
+    elif args.func == "schaffer2":
+        function = func.schaffer2
+    elif args.func == "sphere":
+        function = func.sphere
+    elif args.func == "threehump":
+        function = func.threehump
+    else:
+        function = f
     position = np.random.random((num_units, num_feat))
-    """
-
-    #Allows the numbers to start from a specific range
-    for i in range(num_feat):
-        a=float(input("Enter the maximum value "+str(i+1) +" point can have:"))
-        b=float(input("Enter the minimum value "+str(i+1) +" point can have:"))
-        position[:,i]=position[:,i]*(a-b)+b
-    """
+    position = position * (args.max_value - args.min_value) + args.min_value
     best_individual = np.copy(position)
-    best_pos = position[np.argmin(function(best_individual)), :].reshape(1, num_feat)
+    best_pos = position[np.argmin(f(best_individual)), :].reshape(1, num_feat)
     velocity = np.random.random((num_units, num_feat))
     valuesnow = function(position)
     indibestnow = np.copy(valuesnow)
+
     # Iteration to reach the stable point
     for i in tqdm.tqdm(range(args.iters)):
         r1 = np.random.random()
@@ -56,40 +155,6 @@ def main():
         # valuesnow=function(position)
     print(best_pos)
     print(np.min(indibestnow))
-
-
-def _parse_args():
-    """
-    The different arguments for the parser
-    """
-    parser = argparse.ArgumentParser(description="Obtain the parameters for the PSO")
-    parser.add_argument(
-        "-d",
-        "--num_feat",
-        type=int,
-        default=10,
-        help="Number of dimensions each particle has",
-    )
-    parser.add_argument(
-        "-n",
-        "--num_units",
-        type=int,
-        default=10,
-        help="Number of particles for the run",
-    )
-    parser.add_argument("--c1", type=float, default=2, help="Positional Dependence")
-    parser.add_argument("--c2", type=float, default=2, help="Global Dependence")
-    parser.add_argument("--modified", action="store_true", help="Use the modified PSO")
-    parser.add_argument(
-        "--iters",
-        type=int,
-        default=1000,
-        help="Number of iterations the algorithm will run",
-    )
-    parser.add_argument(
-        "--func", type=str, default="sqrt_loss", choices=["sqrt_loss", "eggholder_loss"]
-    )
-    return parser.parse_args()
 
 
 if __name__ == "__main__":

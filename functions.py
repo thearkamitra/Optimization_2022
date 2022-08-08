@@ -1,15 +1,4 @@
-"""single_obj.py: collection of single-objective functions
-All objective functions :code:`obj_func()` must accept a
-:code:`(numpy.ndarray)` with shape :code:`(n_particles, dimensions)`.
-Thus, each row represents a  particle, and each column represents its
-position on a specific dimension of the search-space.
-In this context, :code:`obj_func()` must return an array :code:`j`
-of size :code:`(n_particles, )` that contains all the computed fitness
-for each particle.
-Whenever you make changes to this file via an implementation
-of a new objective function, be sure to perform unittesting
-in order to check if all functions implemented adheres to
-the design pattern stated above.
+"""
 Function list:
 - Ackley's, ackley
 - Beale, beale

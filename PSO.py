@@ -1,5 +1,4 @@
 import argparse
-from turtle import pos
 import tqdm
 import numpy as np
 import matplotlib.pyplot as plt
@@ -53,7 +52,7 @@ def _parse_args():
         default=1000,
         help="Number of iterations the algorithm will run",
     )
-
+    parser.add_argument("--probability", type=float, default=0.001, help="Probability of new generation")
     parser.add_argument(
         "--func",
         type=str,
@@ -80,6 +79,8 @@ def _parse_args():
     )
     return parser.parse_args()
 
+def get_distance(x,y):
+    return np.max(np.sum((x-y)**2,axis=1))**0.5
 
 def main():
     # initialisation
@@ -139,6 +140,10 @@ def main():
             - args.c1 * r1 * (position - best_individual)
             - args.c2 * r2 * (position - best_pos)
         )
+        if args.modified:
+            prob = np.random.random((args.num_units,1))< args.probability
+            position = position*(1-prob) + prob*(best_pos+np.random.randn(*best_pos.shape)*get_distance(best_pos, position)/100)
+            velocity = velocity*(1-prob) 
         position = position + velocity
         valuesnow = function(position)
         temp = valuesnow < indibestnow

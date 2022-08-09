@@ -22,6 +22,7 @@ min_value = 0
 # Function definition
 def objective_fun(sel_flag):
     """This function will return the chosen objective"""
+    # Select the function 
     if (sel_flag == "ackley"):
         return func.ackley
     elif (sel_flag == "beale"):
@@ -68,33 +69,30 @@ def matropolis(diff, temp):
         else:
             return 0
 
-def gen_new(x_old, T, add_type):
+def gen_new(x_old, dis):
     """ this function will generate new value based on the current
     temperature and the type we want to add.
     ---
     Args:
         x_old (n_particles, dimensions): old x
-        type (int): if 1, same value will be added to all particles;
-                    if 0, different particles will be shifted differently
+        dis (int): used for updating the position
     """
     
     x_new = np.copy(x_old)
-    
-    if (add_type):
-        x_new = x_new + np.random.uniform(low=-0.055, high=0.55) * T
-    else:
-        for i in range(len(x_new)):
-            x_new[0] = x_new[0] + np.random.uniform(low=-0.055, high=0.55) * T
+
+    for i in range(x_new.shape[1]):
+        x_new[0][i] = x_new[0][i] + np.random.uniform(low=-0.055, high=0.55) * dis
 
     return x_new
             
     
-def sa_simulation(sel_flag, x_init, temp_init = Temp_initial, temp_min = Temp_min, markov_len = Markov_length, damping_factor = damping_factor, max_value = max_value, min_value = min_value):
+def sa_simulation(sel_flag, distance,x_init, temp_init = Temp_initial, temp_min = Temp_min, markov_len = Markov_length, damping_factor = damping_factor, max_value = max_value, min_value = min_value):
     """ sa_simulation function: 
     This function will do the simulated annealing simulation
     -------
     Args:
         sel_flag (string): choose the objective function
+        distance (int) : used for generating new positions
         x_init (num_dim, num_feat) : initial value of x
         temp_init (int): Initial temperature
         temp_min (int): End temperature
@@ -103,7 +101,7 @@ def sa_simulation(sel_flag, x_init, temp_init = Temp_initial, temp_min = Temp_mi
     """
     # Param definition
     Temp = temp_init
-    x_ = x_init
+    x_ = np.atleast_2d(x_init)
     
     # Random generator
     randseed = random.randint(1,50)
@@ -118,7 +116,7 @@ def sa_simulation(sel_flag, x_init, temp_init = Temp_initial, temp_min = Temp_mi
             # Calculate fitness
             y_old = obj_fun(x_)
             # Generate new x
-            x_new = gen_new(x_)
+            x_new = gen_new(x_, distance)
             y_new = obj_fun(x_new)
             
             # Selection

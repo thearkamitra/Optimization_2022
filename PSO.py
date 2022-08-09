@@ -181,6 +181,7 @@ def main():
             )
             velocity = velocity * (1 - prob)
         position = position + velocity
+        position = np.clip(position, args.min_range, args.max_range)
         valuesnow = function(position)
         temp = valuesnow < indibestnow
         temp = temp.reshape(num_units, 1)  # for the eggholder

@@ -8,7 +8,13 @@ import functions as func
 
 
 def f(x):
-    return np.sum(np.square(x - 2), axis=1, keepdims=True)
+    x1 = np.array([1, 0, 0]).reshape(-1, 1)
+    x2 = np.array([0, 1, 0]).reshape(-1, 1)
+    x3 = np.array([0, 0, 0.2]).reshape(-1, 1)
+    return -np.min(
+        [x @ x1, x @ x2, x @ x3],
+        axis=0,
+    )
 
 
 # hyperparameters
@@ -70,7 +76,7 @@ def _parse_args():
     parser.add_argument(
         "--func",
         type=str,
-        default="sphere",
+        default="other",
         choices=[
             "ackley",
             "beale",
@@ -89,6 +95,7 @@ def _parse_args():
             "schaffer2",
             "sphere",
             "threehump",
+            "other",
         ],
     )
     return parser.parse_args()
@@ -156,6 +163,7 @@ def main():
         function = f
     position = np.random.random((num_units, num_feat))
     position = position * (args.max_value - args.min_value) + args.min_value
+    position = position / (position.sum(axis=1, keepdims=1))
     best_individual = np.copy(position)
     best_pos = position[np.argmin(f(best_individual)), :].reshape(1, num_feat)
     velocity = np.random.random((num_units, num_feat))
@@ -181,7 +189,9 @@ def main():
             )
             velocity = velocity * (1 - prob)
         position = position + velocity
+        position = position / (position.sum(axis=1, keepdims=1) + 1e-10)
         position = np.clip(position, args.min_range, args.max_range)
+        position = position / (position.sum(axis=1, keepdims=1) + 1e-10)
         valuesnow = function(position)
         temp = valuesnow < indibestnow
         temp = temp.reshape(num_units, 1)  # for the eggholder
@@ -196,7 +206,7 @@ def main():
         # Getting a visual for how particles move for two dimensions
         # valuesnow=function(position)
     print(best_pos)
-    print(np.min(indibestnow))
+    print(-np.min(indibestnow))
 
 
 if __name__ == "__main__":
